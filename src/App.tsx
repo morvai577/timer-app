@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Timer component
+const Timer: React.FC = () => {
+  // State for the timer (in seconds)
+  const [time, setTime] = useState(0);
+  // State to handle whether the timer is running or paused
+  const [isRunning, setIsRunning] = useState(false);
+
+  // Function to start or pause the timer
+  const toggleTimer = () => {
+    setIsRunning(!isRunning);
+  };
+
+  // Function to reset the timer
+  const resetTimer = () => {
+    setTime(0);
+    setIsRunning(false);
+  };
+
+  // Effect to update the timer every second if it's running
+  useEffect(() => {
+    if (isRunning) {
+      const timerId = setInterval(() => {
+        setTime((prevTime) => prevTime + 1);
+      }, 1000);
+
+      return () => clearInterval(timerId);
+    }
+  }, [isRunning, time]); // Include time in the dependency array
+
+  // Function to format the time as MM : SS
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <div className="timer">
+      <h1>{formatTime(time)}</h1>
+      <button onClick={toggleTimer}>{isRunning ? 'Pause' : 'Start'}</button>
+      <button onClick={resetTimer}>Reset</button>
     </div>
-  )
+  );
 }
 
-export default App
+// App component
+const App: React.FC = () => {
+  return (
+    <div className="App">
+      <Timer />
+    </div>
+  );
+};
+
+export default App;
